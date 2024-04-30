@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>A Template App</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script async src="{{{appclient}}}"></script>
+  <link rel="stylesheet" type="text/css" href="styles/style.css">
+</head>
+
+<body>
+  <div id="errorDisplay" role="alert" aria-live="assertive"></div>
+  <fw-textarea id="userInput" cols=20 rows=5 label="Ticket Summary"
+    placeholder="(Optional) Include a few sentences to summarize the customer feedback or just send the ticket to Productboard."
+    resize="vertical">
+  </fw-textarea>
+  <fw-button id="sendButton" color="primary">Push to Productboard</fw-button>
+  <fw-pill id="historyHeader" color="blue" syle="--fw-pill-padding-top="20px">
+    <fw-icon name="info" slot="icon"></fw-icon>
+  Nothing pushed yet...
+  </fw-pill>
+  <section id="sectionContainer">
+  </section>
+  <div id="apptext"></div>
+  <script defer src="scripts/app.js"></script>
+  <script async type="module"
+    src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.esm.js"></script>
+  <script async nomodule src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.js"></script>
+</body>
+
+</html>

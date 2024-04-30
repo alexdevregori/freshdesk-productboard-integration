@@ -1,0 +1,30 @@
+{
+	"api_key": {
+		"display_name": "Freshdesk API Key",
+		"description": "Go to your profile settings to copy your API key.",
+		"secure": true,
+		"type": "text",
+		"required": true
+	},
+	"subdomain": {
+		"display_name": "Freshdesk Subdomain",
+        "description": "Your Freshdesk subdomain i.e. <u>acme</u> if your full domain is acme.freshdesk.com ",
+		"type": "text",
+        "required": true
+	},
+    "pb_access_token": {
+		"display_name": "Productboard API Token",
+        "description": "Click <a href='https://app.productboard.com/settings/integrations/api-keys' target='_blank'>here</a> to generate your token.",
+        "secure": true,
+		"type": "text",
+        "required": true
+    },
+	"sync_tags": {
+		"display_name": "Sync tags",
+		"description": "Choose whether or not you would like to send tags to Productboard.",
+		"type": "dropdown",
+		"required": true,
+		"options": ["Yes", "No"],
+		"default_value": "Yes"
+	}
+}

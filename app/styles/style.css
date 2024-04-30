@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+}
+
+body, button, input, select, textarea {
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 0px;
+}
+
+#sendButton {
+  width: 198px;
+  padding-top: 2px;
+  padding-bottom: 15px;
+}
+
+#historyHeader {
+  padding-top: 30px;
+}
+
+fw-inline-message {
+  padding-top: 5px;  
+}
+
+fw-inline-message:hover {
+  cursor: pointer; 
+}
+
+
+/* Button for seeing note history/links */
+.card-button {
+  display: block;
+  width: 100%; 
+  padding: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.8em;
+}
+
+.card-button.fade-in {
+  opacity: 0; /* Start with opacity 0 */
+  transition: opacity .7s; /* Define transition property */
+}
+
+.card-button:hover {
+  background-color: #f4f4f4;
+  cursor: pointer;
+}
+
+/* Timestamp styles */
+.timestamp {
+  color: #666; /* Greyed text color */
+  font-size: 0.8em; /* Smaller font size */
+}
+
+#errorDisplay {
+  color: red;
+  display: none;
+  font-size: .8em;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; } /* Start with opacity 0 */
+  to { opacity: 1; } /* End with opacity 1 */
+}

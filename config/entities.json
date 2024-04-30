@@ -1,0 +1,17 @@
+{
+    "productboardNoteEntity": {
+        "fields": [
+            {
+                "name": "URL",
+                "label": "URL",
+                "type": "text"
+            },
+            {
+                "name": "ticket_id",
+                "label": "Ticket ID",
+                "type": "integer",
+                "filterable": true
+            }
+        ]
+    }
+}

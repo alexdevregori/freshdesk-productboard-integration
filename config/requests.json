@@ -1,0 +1,39 @@
+{
+    "createProductboardNote": {
+      "schema": {
+        "method": "POST",
+        "host": "api.productboard.com",
+        "path": "/notes",
+        "headers": {
+            "Authorization": "Bearer <%= iparam.pb_access_token %>",
+            "Content-Type": "application/json",
+            "X-Version": "1"
+        }
+      }
+    },
+    "addFollowerToNote": {
+        "schema": {
+          "method": "POST",
+          "host": "api.productboard.com",
+          "path": "/notes/<%= context.query %>/user-followers",
+          "headers": {
+              "Authorization": "Bearer <%= iparam.pb_access_token %>",
+              "Content-Type": "application/json",
+              "X-Version": "1"
+          }
+        }
+      },
+    "getTicketConversation": {
+        "schema": {
+            "protocol": "https",
+            "method": "GET",
+            "host": "<%= iparam.subdomain %>.freshdesk.com",
+            "path": "/api/v2/tickets/<%= context.query %>/conversations",
+            "headers": {
+                "Authorization": "Basic <%= encode(iparam.api_key) %>",
+                "Content-Type": "application/json"
+            }
+           
+        }
+    }
+}
