@@ -70,11 +70,12 @@ async function renderNotes() {
   }
 }
 
-async function getTicketConversation(ticketId) {
+async function getTicketConversation(ticketId, pageNumber) {
   try {
     let ticketConversation = await client.request.invokeTemplate("getTicketConversation", {
       context: {
         query: ticketId,
+        page: pageNumber
       },
       cache: false
     });
@@ -92,13 +93,36 @@ async function getTicketConversation(ticketId) {
   }
 }
 
+async function getAllTicketConversations(ticketId) {
+  let allConversations = [];
+  let pageNumber = 1;
+  let hasMorePages = true;
+
+  while (hasMorePages) {
+    const ticketConversation = await getTicketConversation(ticketId, pageNumber);
+    if (ticketConversation && ticketConversation.response) {
+      const conversationPage = JSON.parse(ticketConversation.response);
+      allConversations = allConversations.concat(conversationPage);
+
+      if (conversationPage.length < 30) {
+        hasMorePages = false;
+      } else {
+        pageNumber++;
+      }
+    } else {
+      hasMorePages = false;
+    }
+  }
+  return allConversations;
+}
+
 async function sendProductboardNote(noteContent) {
   const ticket = await client.data.get('ticket');
   const loggedInUser = await client.data.get('loggedInUser')
   const domainName = await client.data.get('domainName')
   try {
-    const ticketConversation = await getTicketConversation(ticket.ticket.id);
-    const parsedTicketConversation = extractAndFormatBody(JSON.parse(ticketConversation.response));
+    const allConversations = await getAllTicketConversations(ticket.ticket.id);
+    const parsedTicketConversation = extractAndFormatBody(allConversations);
     try {
       let productboardNote = await client.request.invokeTemplate("createProductboardNote", {
         context: {},
@@ -200,10 +224,21 @@ document.getElementById('sendButton').addEventListener('click', async function (
 
 function extractAndFormatBody(payload) {
   return payload.reduce((acc, message, index) => {
-    const replyNumber = index + 1;
+    const private = message.private;
+    const source = message.source;
+    let replyNumber = index + 1;
+    let replyHeader;
     const fromEmail = message.from_email;
+    if (private && source === 2) {
+      replyHeader = `<b>#${replyNumber}: Internal note`
+    } else if (!private && source === 2) {
+      replyHeader = `<b>#${replyNumber}: External note`
+    }
+      else {
+      replyHeader = `<b>#${replyNumber}: Reply from ${fromEmail}`
+    }
     const timestamp = formatTimestamp(message.created_at);
-    const formattedBody = `<b>Reply #${replyNumber} from ${fromEmail} on ${timestamp}</b>:${message.body}<hr/>`;
+    const formattedBody = `${replyHeader} on ${timestamp}</b>:${message.body}<hr/>`;
     return acc + formattedBody;
   }, '');
 }

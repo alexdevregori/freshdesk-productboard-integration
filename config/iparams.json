@@ -1,7 +1,7 @@
 {
 	"api_key": {
 		"display_name": "Freshdesk API Key",
-		"description": "Go to your profile settings to copy your API key.",
+		"description": "Go to your profile settings to copy your API key. Click <a href='https://support.freshdesk.com/en/support/solutions/articles/215517-how-to-find-your-api-key' target='_blank'>here</a> to find out more.",
 		"secure": true,
 		"type": "text",
 		"required": true
