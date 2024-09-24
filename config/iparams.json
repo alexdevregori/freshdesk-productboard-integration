@@ -3,21 +3,33 @@
 		"display_name": "Freshdesk API Key",
 		"description": "Go to your profile settings to copy your API key. Click <a href='https://support.freshdesk.com/en/support/solutions/articles/215517-how-to-find-your-api-key' target='_blank'>here</a> to find out more.",
 		"secure": true,
-		"type": "text",
-		"required": true
-	},
+		"data-bind": "product.api_key",
+		"type": "api_key",
+		"type_attributes": {
+			"product": "freshdesk"
+		  },
+		  "required": true
+		},
 	"subdomain": {
 		"display_name": "Freshdesk Subdomain",
         "description": "Your Freshdesk subdomain i.e. <u>acme</u> if your full domain is acme.freshdesk.com ",
-		"type": "text",
-        "required": true
-	},
+		"type": "domain",
+		"data-bind": "product.domain",
+		"type_attributes": {
+			"product": "freshdesk"
+		  },
+		  "required": true
+		},
     "pb_access_token": {
 		"display_name": "Productboard API Token",
-        "description": "Click <a href='https://app.productboard.com/settings/integrations/api-keys' target='_blank'>here</a> to generate your token.",
+        "description": "Click <a href='https://app.productboard.com/settings/integrations/api-keys' target='_blank'>here</a> to generate your token. You must be an admin in Productboard.",
         "secure": true,
 		"type": "text",
-        "required": true
+        "required": true,
+		"regex": {
+			"token-validation": "^[^.]*\\.[^.]*\\.[^.]*$",
+			"token-validation-error": "Invalid API token format. Please try again."
+		   }
     },
 	"sync_tags": {
 		"display_name": "Sync tags",

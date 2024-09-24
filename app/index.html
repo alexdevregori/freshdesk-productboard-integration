@@ -12,12 +12,13 @@
 
 <body>
   <div id="errorDisplay" role="alert" aria-live="assertive"></div>
-  <fw-textarea id="userInput" cols=20 rows=5 label="Ticket Summary"
+  <fw-textarea id="userInput" cols=21 rows=5 label="Ticket Summary"
+
     placeholder="(Optional) Include a few sentences to summarize the customer feedback or just send the ticket to Productboard."
     resize="vertical">
   </fw-textarea>
   <fw-button id="sendButton" color="primary">Push to Productboard</fw-button>
-  <fw-pill id="historyHeader" color="blue" syle="--fw-pill-padding-top="20px">
+  <fw-pill id="historyHeader" color="blue">
     <fw-icon name="info" slot="icon"></fw-icon>
   Nothing pushed yet...
   </fw-pill>

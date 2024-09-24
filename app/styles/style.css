@@ -17,8 +17,8 @@ body, button, input, select, textarea {
 }
 
 #sendButton {
-  width: 198px;
-  padding-top: 2px;
+  width: 210px;
+  padding-top: 3px;
   padding-bottom: 15px;
 }
 
