@@ -7,19 +7,19 @@
 		"type": "api_key",
 		"type_attributes": {
 			"product": "freshdesk"
-		  },
-		  "required": true
 		},
+		"required": true
+	},
 	"subdomain": {
 		"display_name": "Freshdesk Subdomain",
-        "description": "Your Freshdesk subdomain i.e. <u>acme</u> if your full domain is acme.freshdesk.com ",
+		"description": "Your Freshdesk subdomain i.e. <u>acme</u> if your full domain is acme.freshdesk.com ",
 		"type": "domain",
 		"data-bind": "product.domain",
 		"type_attributes": {
 			"product": "freshdesk"
-		  },
-		  "required": true
 		},
+		"required": true
+	},
     "pb_access_token": {
 		"display_name": "Productboard API Token",
         "description": "Click <a href='https://app.productboard.com/settings/integrations/api-keys' target='_blank'>here</a> to generate your token. You must be an admin in Productboard.",

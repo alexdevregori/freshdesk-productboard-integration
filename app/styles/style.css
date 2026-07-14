@@ -64,9 +64,11 @@ fw-inline-message:hover {
 }
 
 #errorDisplay {
+  font-family: 'Roboto', sans-serif;
   color: red;
   display: none;
   font-size: .8em;
+  padding-bottom: 5px;
 }
 
 @keyframes fadeIn {

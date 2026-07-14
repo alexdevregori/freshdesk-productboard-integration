@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Freshdesk FDK Dev Server",
+      "runtimeExecutable": "fdk",
+      "runtimeArgs": ["run"],
+      "port": 10001
+    }
+  ]
+}

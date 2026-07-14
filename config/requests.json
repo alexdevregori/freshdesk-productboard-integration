@@ -3,26 +3,35 @@
       "schema": {
         "method": "POST",
         "host": "api.productboard.com",
-        "path": "/notes",
+        "path": "/v2/notes",
         "headers": {
             "Authorization": "Bearer <%= iparam.pb_access_token %>",
-            "Content-Type": "application/json",
-            "X-Version": "1"
+            "Content-Type": "application/json"
         }
       }
     },
-    "addFollowerToNote": {
-        "schema": {
-          "method": "POST",
-          "host": "api.productboard.com",
-          "path": "/notes/<%= context.query %>/user-followers",
-          "headers": {
-              "Authorization": "Bearer <%= iparam.pb_access_token %>",
-              "Content-Type": "application/json",
-              "X-Version": "1"
-          }
+    "createProductboardTag": {
+      "schema": {
+        "method": "POST",
+        "host": "api.productboard.com",
+        "path": "/v2/entities/fields/tags/values",
+        "headers": {
+            "Authorization": "Bearer <%= iparam.pb_access_token %>",
+            "Content-Type": "application/json"
         }
-      },
+      }
+    },
+    "createProductboardUser": {
+      "schema": {
+        "method": "POST",
+        "host": "api.productboard.com",
+        "path": "/v2/entities",
+        "headers": {
+            "Authorization": "Bearer <%= iparam.pb_access_token %>",
+            "Content-Type": "application/json"
+        }
+      }
+    },
     "getTicketConversation": {
         "schema": {
             "protocol": "https",
@@ -33,7 +42,6 @@
                 "Authorization": "Basic <%= encode(iparam.api_key) %>",
                 "Content-Type": "application/json"
             }
-           
         }
     }
 }

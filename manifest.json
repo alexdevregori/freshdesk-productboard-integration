@@ -10,13 +10,14 @@
       },
       "requests": {
         "createProductboardNote": {},
-        "addFollowerToNote": {},
+        "createProductboardTag": {},
+        "createProductboardUser": {},
         "getTicketConversation": {}
       }
     }
   },
   "engines": {
     "node": "18.19.0",
-    "fdk": "9.0.9"
+    "fdk": "9.8.2"
   }
 }
