@@ -1,7 +1,9 @@
-let client;
-let entity;
-let productboardNotes;
-let syncTags;
+const state = {
+  client: null,
+  entity: null,
+  productboardNotes: null,
+  syncTags: null
+};
 
 
 document.onreadystatechange = function () {
@@ -16,20 +18,20 @@ document.onreadystatechange = function () {
 
 async function init() {
   try {
-    client = await app.initialized(); // eslint-disable-line no-global-assign
-    const tagDecision = await client.iparams.get('sync_tags');
-    syncTags = tagDecision.sync_tags; // eslint-disable-line no-global-assign
-    entity = client.db.entity({ version: "v1" }); // eslint-disable-line no-global-assign
-    productboardNotes = entity.get("productboardNoteEntity"); // eslint-disable-line no-global-assign
-    client.events.on('app.activated', renderNotes());
+    state.client = await app.initialized();
+    const tagDecision = await state.client.iparams.get('sync_tags');
+    state.syncTags = tagDecision.sync_tags;
+    state.entity = state.client.db.entity({ version: "v1" });
+    state.productboardNotes = state.entity.get("productboardNoteEntity");
+    state.client.events.on('app.activated', renderNotes());
   } catch (error) {
     console.error('Error initializing:', error);
   }
 }
 async function renderNotes() {
   try {
-    const ticket = await client.data.get('ticket');
-    const currentProductboardNotes = await productboardNotes.getAll({
+    const ticket = await state.client.data.get('ticket');
+    const currentProductboardNotes = await state.productboardNotes.getAll({
       query: {
         ticket_id: ticket.ticket.id
       }
@@ -74,7 +76,7 @@ async function renderNotes() {
       history.appendChild(inlineMessage);
       height += 85;
     }
-    client.instance.resize({ height: height + "px" });
+    state.client.instance.resize({ height: height + "px" });
     document.getElementById('errorDisplay').style.display = 'none';
     return currentProductboardNotes;
   } catch (error) {
@@ -85,7 +87,7 @@ async function renderNotes() {
 
 async function getTicketConversation(ticketId, pageNumber) {
   try {
-    const ticketConversation = await client.request.invokeTemplate("getTicketConversation", {
+    const ticketConversation = await state.client.request.invokeTemplate("getTicketConversation", {
       context: {
         query: ticketId,
         page: pageNumber
@@ -143,9 +145,9 @@ async function sendProductboardNote(noteContent) {
 }
 
 async function fetchData() {
-  const ticket = await client.data.get('ticket');
-  const loggedInUser = await client.data.get('loggedInUser');
-  const domainName = await client.data.get('domainName');
+  const ticket = await state.client.data.get('ticket');
+  const loggedInUser = await state.client.data.get('loggedInUser');
+  const domainName = await state.client.data.get('domainName');
   return { ticket, loggedInUser, domainName };
 }
 
@@ -158,16 +160,16 @@ async function getConversations(ticketId) {
   }
 }
 
+
 function handleConversationErrors(allConversations) {
   if (allConversations.includes("Error 404")) {
-    console.log("No conversations found (404). Skipping ticket conversation in note.");
     return '';
   }
   return extractAndFormatBody(allConversations);
 }
 
 function buildNoteBody(ticket, domainName, loggedInUser, noteContent, parsedTicketConversation) {
-  const tags = syncTags === "Yes"
+  const tags = state.syncTags === "Yes"
     ? [{ name: 'Freshdesk' }].concat(ticket.ticket.tags.map(t => ({ name: t })))
     : [];
 
@@ -203,8 +205,6 @@ function handleSizeLimit(noteBody, noteContent, loggedInUser) {
   const noteBodyString = JSON.stringify(noteBody);
   const noteBodySize = new Blob([noteBodyString]).size;
   if (noteBodySize >= 102400) {
-    console.log("Note body exceeds 100KB. Removing ticket description and conversation.");
-
     if (!noteContent || noteContent === "<p></p>") {
       return null;
     }
@@ -217,7 +217,7 @@ function handleSizeLimit(noteBody, noteContent, loggedInUser) {
     return noteBody;
   }
 
-  return noteBody
+  return noteBody;
 }
 
 function getMissingResources(errorBody, noteBody) {
@@ -245,63 +245,103 @@ function getMissingResources(errorBody, noteBody) {
   return result;
 }
 
+function extractAndFormatBody(payload) {
+  return payload.reduce((acc, message, index) => {
+    const privateMessage = message.private;
+    const source = message.source;
+    const replyNumber = index + 1;
+    let replyHeader;
+    const fromEmail = message.from_email;
+    if (privateMessage && source === 2) {
+      replyHeader = `<b>#${replyNumber}: Internal note`
+    } else if (!privateMessage && source === 2) {
+      replyHeader = `<b>#${replyNumber}: External note`
+    } else {
+      replyHeader = `<b>#${replyNumber}: Reply from ${fromEmail}`
+    }
+    const timestamp = formatTimestamp(message.created_at);
+    const formattedBody = `${replyHeader} on ${timestamp}</b>:${message.body}<hr/>`;
+    return acc + formattedBody;
+  }, '');
+}
+
+function formatTimestamp(timestamp) {
+  const months = ['Jan', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+  const date = new Date(timestamp);
+  const month = months[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const meridiem = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+  const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+  return `${month} ${day}, ${year} ${formattedHours}:${formattedMinutes} ${meridiem}`;
+}
+
 async function createMissingResources(missing) {
   const tasks = [];
   if (missing.customer) {
-    console.log('Creating missing customer:', missing.customer);
     tasks.push(createProductboardUser(missing.customer));
   }
   if (missing.tags.length > 0) {
-    console.log('Creating missing tags:', missing.tags);
     missing.tags.forEach(name => tasks.push(createProductboardTag(name)));
   }
   await Promise.all(tasks);
 }
 
+function filterMissingResources(missing, created) {
+  if (created.customer) missing.customer = null;
+  missing.tags = missing.tags.filter(t => !created.tags.has(t));
+  return missing;
+}
+
+async function handleNoteRetry(error, noteBody, created, attempt, maxRetries) {
+  console.error(`Productboard API error (attempt ${attempt}):`, error.status);
+  const errorBody = JSON.parse(error.response || '{}');
+  const missing = filterMissingResources(getMissingResources(errorBody, noteBody), created);
+
+  if ((!missing.customer && missing.tags.length === 0) || attempt === maxRetries) throw error;
+
+  await createMissingResources(missing);
+  if (missing.customer) created.customer = true;
+  missing.tags.forEach(t => created.tags.add(t));
+  await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
+}
+
 async function createProductboardNote(noteBody) {
-  console.log('Sending note to Productboard:', JSON.stringify(noteBody, null, 2));
   const maxRetries = 5;
+  const created = { customer: false, tags: new Set() };
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const response = await client.request.invokeTemplate("createProductboardNote", {
+      return await state.client.request.invokeTemplate("createProductboardNote", {
         context: {},
         body: JSON.stringify(noteBody)
       });
-      console.log('Productboard response:', response.response);
-      return response;
     } catch (error) {
-      console.log(`Productboard API error (attempt ${attempt}):`, error.status, error.response);
-      const errorBody = JSON.parse(error.response || '{}');
-      const missing = getMissingResources(errorBody, noteBody);
-      if ((!missing.customer && missing.tags.length === 0) || attempt === maxRetries) throw error;
-      await createMissingResources(missing);
-      await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+      await handleNoteRetry(error, noteBody, created, attempt, maxRetries);
     }
   }
 }
 
 async function createProductboardUser(email) {
-  console.log('Creating Productboard user:', email);
-  const response = await client.request.invokeTemplate("createProductboardUser", {
+  const response = await state.client.request.invokeTemplate("createProductboardUser", {
     context: {},
     body: JSON.stringify({ data: { type: "user", fields: { email: email } } })
   });
-  console.log('User created:', response.response);
   return response;
 }
 
 async function createProductboardTag(name) {
-  console.log('Creating Productboard tag:', name);
-  const response = await client.request.invokeTemplate("createProductboardTag", {
+  const response = await state.client.request.invokeTemplate("createProductboardTag", {
     context: {},
     body: JSON.stringify({ data: { fields: { name: name } } })
   });
-  console.log('Tag created:', response.response);
   return response;
 }
 
 function handleError(error) {
-  if (error.status === 401) {
+  if (error.status === 401 || error.status === 400) {
     displayAuthError();
   } else {
     document.getElementById('errorDisplay').textContent = `Error ${error.status || "Unknown"}: ${error.message}`;
@@ -324,7 +364,7 @@ function displaySizeError() {
 }
 
 document.getElementById('sendButton').addEventListener('click', async function () {
-  const ticket = await client.data.get('ticket');
+  const ticket = await state.client.data.get('ticket');
     const userInput = document.getElementById('userInput').value;
     document.getElementById('sendButton').loading = true;
     try {
@@ -332,11 +372,10 @@ document.getElementById('sendButton').addEventListener('click', async function (
       if (!response) return;
       const parsedResponse = JSON.parse(response.response);
       const productboardNoteLink = parsedResponse.data.links.html;
-      await productboardNotes.create({
+      await state.productboardNotes.create({
         URL: productboardNoteLink,
         ticket_id: ticket.ticket.id
       });
-      console.log('Note added to Productboard successfully!');
 
       await renderNotes();
       document.querySelector('fw-textarea').value = ''
@@ -347,37 +386,3 @@ document.getElementById('sendButton').addEventListener('click', async function (
     }
 });
 
-function extractAndFormatBody(payload) {
-  return payload.reduce((acc, message, index) => {
-    const privateMessage = message.private;
-    const source = message.source;
-    const replyNumber = index + 1;
-    let replyHeader;
-    const fromEmail = message.from_email;
-    if (privateMessage && source === 2) {
-      replyHeader = `<b>#${replyNumber}: Internal note`
-    } else if (!privateMessage && source === 2) {
-      replyHeader = `<b>#${replyNumber}: External note`
-    }
-    else {
-      replyHeader = `<b>#${replyNumber}: Reply from ${fromEmail}`
-    }
-    const timestamp = formatTimestamp(message.created_at);
-    const formattedBody = `${replyHeader} on ${timestamp}</b>:${message.body}<hr/>`;
-    return acc + formattedBody;
-  }, '');
-}
-
-function formatTimestamp(timestamp) {
-  const months = ['Jan', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-  const date = new Date(timestamp);
-  const month = months[date.getMonth()];
-  const day = date.getDate();
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const meridiem = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-  const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-  return `${month} ${day}, ${year} ${formattedHours}:${formattedMinutes} ${meridiem}`;
-}

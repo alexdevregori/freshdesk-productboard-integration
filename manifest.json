@@ -1,13 +1,15 @@
 {
-  "platform-version": "2.3",
-  "product": {
-    "freshdesk": {
+  "platform-version": "3.0",
+  "modules": {
+    "support_ticket": {
       "location": {
         "ticket_sidebar": {
           "url": "index.html",
           "icon": "styles/images/icon.svg"
         }
-      },
+      }
+    },
+    "common": {
       "requests": {
         "createProductboardNote": {},
         "createProductboardTag": {},
@@ -17,7 +19,10 @@
     }
   },
   "engines": {
-    "node": "18.19.0",
-    "fdk": "9.8.2"
+    "node": "24.11.0",
+    "fdk": "10.1.9"
+  },
+  "scripts": {
+    "fdk-unit-test": "vitest run --coverage"
   }
 }

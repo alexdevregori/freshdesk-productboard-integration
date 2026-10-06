@@ -3,21 +3,13 @@
 		"display_name": "Freshdesk API Key",
 		"description": "Go to your profile settings to copy your API key. Click <a href='https://support.freshdesk.com/en/support/solutions/articles/215517-how-to-find-your-api-key' target='_blank'>here</a> to find out more.",
 		"secure": true,
-		"data-bind": "product.api_key",
-		"type": "api_key",
-		"type_attributes": {
-			"product": "freshdesk"
-		},
+		"type": "text",
 		"required": true
 	},
 	"subdomain": {
 		"display_name": "Freshdesk Subdomain",
 		"description": "Your Freshdesk subdomain i.e. <u>acme</u> if your full domain is acme.freshdesk.com ",
-		"type": "domain",
-		"data-bind": "product.domain",
-		"type_attributes": {
-			"product": "freshdesk"
-		},
+		"type": "text",
 		"required": true
 	},
     "pb_access_token": {
